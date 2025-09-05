@@ -1,18 +1,15 @@
 {
-
   "name": "solaris-online-store",
   "version": "1.0.0",
   "description": "Solaris - Beautiful accessories online store",
   "main": "server/index.js",
-  "scripts": {
-    "start": "npm install --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && node index.js",
-    "client": "cd client && npm start",
-    "build": "cd client && npm run build",
-    "install-all": "npm install && cd server && npm install && cd ../client && npm install"
-  },
-  "keywords": ["ecommerce", "accessories", "online-store", "react", "express"],
+  "keywords": [
+    "ecommerce",
+    "accessories",
+    "online-store",
+    "react",
+    "express"
+  ],
   "author": "Solaris",
   "license": "MIT",
   "dependencies": {
@@ -26,17 +23,16 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "engines": {
-    "node": ">=18.0.0"
-    
-  },
   "scripts": {
-  "install-client": "npm install --prefix client",
-  "build-client": "npm run build --prefix client",
-  "start": "node server/index.js"
-},
-"engines": {
-  "node": "18.x"
-}
-
+    "server": "cd server && node index.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-client": "npm install --prefix client",
+    "build-client": "npm run build --prefix client",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "start": "node server/index.js"
+  },
+  "engines": {
+    "node": "18.x"
+  }
 }
