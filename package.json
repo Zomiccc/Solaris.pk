@@ -1,10 +1,11 @@
 {
+
   "name": "solaris-online-store",
   "version": "1.0.0",
   "description": "Solaris - Beautiful accessories online store",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js",
+    "start": "npm install --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && node index.js",
     "client": "cd client && npm start",
@@ -26,6 +27,16 @@
     "concurrently": "^8.2.2"
   },
   "engines": {
-    "node": ">=16.0.0"
-  }
+    "node": ">=18.0.0"
+    
+  },
+  "scripts": {
+  "install-client": "npm install --prefix client",
+  "build-client": "npm run build --prefix client",
+  "start": "node server/index.js"
+},
+"engines": {
+  "node": "18.x"
+}
+
 }
