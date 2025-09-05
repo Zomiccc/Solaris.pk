@@ -1,47 +1,33 @@
-
+// --- Imports ---
+const express = require("express");
+const cors = require("cors");
+const multer = require("multer");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
-// Serve React build
-app.use(express.static(path.join(__dirname, "../client/build")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build/index.html"));
-});
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-
+// --- Config ---
 const app = express();
 const PORT = process.env.PORT || 5000;
-const SECRET = 'supersecretkey'; // For JWT, use env in production
+const SECRET = "supersecretkey"; // ⚠️ Move to env var in production
 
-// Middleware
+// --- Middleware ---
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static(path.join(__dirname, "../client/build")));
 
-// Serve static files from React build
-app.use(express.static(path.join(__dirname, '../client/build')));
-
-// Simple request logger
+// Logger (optional but useful)
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Health endpoint
-app.get('/health', (req, res) => {
-  res.json({ ok: true, time: new Date().toISOString() });
-});
-
-// SQLite DB setup
-const db = new sqlite3.Database('./store.db', (err) => {
-  if (err) return console.error('DB connection error:', err.message);
-  console.log('Connected to SQLite database.');
+// --- Database Setup ---
+const db = new sqlite3.Database("./store.db", (err) => {
+  if (err) return console.error("DB connection error:", err.message);
+  console.log("Connected to SQLite database.");
 });
 
 db.serialize(() => {
@@ -67,43 +53,50 @@ db.serialize(() => {
     username TEXT UNIQUE,
     password TEXT
   )`);
+
   // Insert default admin if not exists
-  db.get('SELECT * FROM admin WHERE username = ?', ['zahra00'], (err, row) => {
+  db.get("SELECT * FROM admin WHERE username = ?", ["zahra00"], (err, row) => {
     if (!row) {
-      const hash = bcrypt.hashSync('sol.pk', 10);
-      db.run('INSERT INTO admin (username, password) VALUES (?, ?)', ['zahra00', hash]);
+      const hash = bcrypt.hashSync("sol.pk", 10);
+      db.run("INSERT INTO admin (username, password) VALUES (?, ?)", [
+        "zahra00",
+        hash,
+      ]);
     }
   });
 });
 
-// Multer setup for image uploads
+// --- Multer Setup (for uploads) ---
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
 });
 const upload = multer({ storage });
 
-// --- API Endpoints ---
+// --- Routes ---
 
-// Public: Get all products
-app.get('/api/products', (req, res) => {
-  db.all('SELECT * FROM products', [], (err, rows) => {
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ ok: true, time: new Date().toISOString() });
+});
+
+// Get all products (public)
+app.get("/api/products", (req, res) => {
+  db.all("SELECT * FROM products", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
 
-// Public: Place an order
-app.post('/api/orders', (req, res) => {
+// Place an order (public)
+app.post("/api/orders", (req, res) => {
   const { items, customer_name, address, phone } = req.body;
   if (!items || !customer_name || !address || !phone) {
-    return res.status(400).json({ error: 'Missing fields' });
+    return res.status(400).json({ error: "Missing fields" });
   }
-  db.run('INSERT INTO orders (items, customer_name, address, phone) VALUES (?, ?, ?, ?)',
+  db.run(
+    "INSERT INTO orders (items, customer_name, address, phone) VALUES (?, ?, ?, ?)",
     [JSON.stringify(items), customer_name, address, phone],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
@@ -112,39 +105,44 @@ app.post('/api/orders', (req, res) => {
   );
 });
 
-// Admin: Login
-app.post('/api/admin/login', (req, res) => {
+// Admin login
+app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
-  db.get('SELECT * FROM admin WHERE username = ?', [username], (err, row) => {
-    if (err || !row) return res.status(401).json({ error: 'Invalid credentials' });
+  db.get("SELECT * FROM admin WHERE username = ?", [username], (err, row) => {
+    if (err || !row) return res.status(401).json({ error: "Invalid credentials" });
     if (!bcrypt.compareSync(password, row.password)) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
-    const token = jwt.sign({ id: row.id, username: row.username }, SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(
+      { id: row.id, username: row.username },
+      SECRET,
+      { expiresIn: "1d" }
+    );
     res.json({ token });
   });
 });
 
-// Middleware: Admin auth
+// Middleware: Auth check
 function auth(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) return res.status(401).json({ error: 'No token' });
-  const token = authHeader.split(' ')[1];
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(401).json({ error: "No token" });
+  const token = authHeader.split(" ")[1];
   jwt.verify(token, SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
+    if (err) return res.status(403).json({ error: "Invalid token" });
     req.user = user;
     next();
   });
 }
 
 // Admin: Add product
-app.post('/api/admin/products', auth, upload.single('image'), (req, res) => {
+app.post("/api/admin/products", auth, upload.single("image"), (req, res) => {
   const { name, description, price, stock } = req.body;
   const image = req.file ? req.file.filename : null;
   if (!name || !price || !stock) {
-    return res.status(400).json({ error: 'Missing fields' });
+    return res.status(400).json({ error: "Missing fields" });
   }
-  db.run('INSERT INTO products (name, description, price, stock, image) VALUES (?, ?, ?, ?, ?)',
+  db.run(
+    "INSERT INTO products (name, description, price, stock, image) VALUES (?, ?, ?, ?, ?)",
     [name, description, price, stock, image],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
@@ -153,18 +151,19 @@ app.post('/api/admin/products', auth, upload.single('image'), (req, res) => {
   );
 });
 
-// Admin: Remove product
-app.delete('/api/admin/products/:id', auth, (req, res) => {
-  db.run('DELETE FROM products WHERE id = ?', [req.params.id], function (err) {
+// Admin: Delete product
+app.delete("/api/admin/products/:id", auth, (req, res) => {
+  db.run("DELETE FROM products WHERE id = ?", [req.params.id], function (err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ deleted: this.changes });
   });
 });
 
-// Admin: Edit product (optional, for future)
-app.put('/api/admin/products/:id', auth, (req, res) => {
+// Admin: Edit product
+app.put("/api/admin/products/:id", auth, (req, res) => {
   const { name, description, price, stock } = req.body;
-  db.run('UPDATE products SET name=?, description=?, price=?, stock=? WHERE id=?',
+  db.run(
+    "UPDATE products SET name=?, description=?, price=?, stock=? WHERE id=?",
     [name, description, price, stock, req.params.id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
@@ -173,26 +172,25 @@ app.put('/api/admin/products/:id', auth, (req, res) => {
   );
 });
 
-// Admin: Get all orders
-console.log('Registering route: GET /api/admin/orders');
-app.get('/api/admin/orders', auth, (req, res) => {
-  db.all('SELECT * FROM orders ORDER BY created_at DESC', [], (err, rows) => {
+// Admin: View orders
+app.get("/api/admin/orders", auth, (req, res) => {
+  db.all("SELECT * FROM orders ORDER BY created_at DESC", [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    const orders = rows.map(order => ({
+    const orders = rows.map((order) => ({
       ...order,
-      items: JSON.parse(order.items)
+      items: JSON.parse(order.items),
     }));
     res.json(orders);
   });
 });
 
-// Catch-all handler: send back React's index.html file for any non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// --- Serve React frontend ---
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
-// Start server
+// --- Start Server ---
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log(`Visit: http://localhost:${PORT}`);
 });
