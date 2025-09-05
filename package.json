@@ -12,26 +12,29 @@
   ],
   "author": "Solaris",
   "license": "MIT",
+
+  "scripts": {
+    "install": "npm install --prefix server && npm install --prefix client && npm rebuild sqlite3 --build-from-source",
+    "build": "npm run build --prefix client",
+    "start": "node server/index.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node index.js",
+    "client": "cd client && npm start"
+  },
+
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "multer": "^1.4.5-lts.1",
-    "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "sqlite3": "^5.1.6"
   },
+
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "scripts": {
-    "server": "cd server && node index.js",
-    "client": "cd client && npm start",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "install-client": "npm install --prefix client",
-    "build-client": "npm run build --prefix client",
-    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
-    "start": "node server/index.js"
-  },
+
   "engines": {
     "node": "18.x"
   }
