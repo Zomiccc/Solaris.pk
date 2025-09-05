@@ -14,12 +14,11 @@
   "license": "MIT",
 
   "scripts": {
-    "install": "npm install --prefix server && npm install --prefix client && npm rebuild sqlite3 --build-from-source",
-    "build": "npm run build --prefix client",
-    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && node index.js",
-    "client": "cd client && npm start"
+    "build-client": "npm run build --prefix client",
+    "start": "node server/index.js"
   },
 
   "dependencies": {
