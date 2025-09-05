@@ -1,3 +1,12 @@
+
+const path = require("path");
+
+// Serve React build
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
