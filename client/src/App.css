@@ -283,19 +283,45 @@ footer {
   border-radius: 8px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1200px), (max-width: 700px) {
   .main-container {
-    flex-direction: column;
-    gap: 1rem;
+    flex-direction: row !important;
+    gap: 2rem !important;
   }
   .side-content {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
   }
   .side-content .side-card {
-    flex: 0 0 calc(50% - 0.5rem);
-    min-width: 250px;
+    flex: 0 0 280px !important;
+    min-width: unset !important;
+    max-width: unset !important;
+  }
+  .footer-content {
+    flex-direction: row !important;
+    gap: 0 !important;
+  }
+  .cart-container {
+    padding: 2rem !important;
+  }
+  .cart-item {
+    flex-direction: row !important;
+    text-align: left !important;
+    gap: 0 !important;
+  }
+  .cart-item-image {
+    width: 80px !important;
+    height: 80px !important;
+    margin-right: 1rem !important;
+    margin: 0 !important;
+  }
+  .order-info-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .product-card {
+    width: 240px !important;
+    max-width: unset !important;
   }
 }
 
@@ -732,45 +758,4 @@ footer {
 .retry-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(244,67,54,0.4);
-}
-
-@media (max-width: 700px) {
-  .hero-banner {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem 0.5rem 1rem 0.5rem;
-  }
-  main {
-    padding: 1rem 0.2rem 2rem 0.2rem;
-  }
-  .product-card {
-    width: 95vw;
-    max-width: 320px;
-  }
-  .side-content {
-    flex-direction: column;
-  }
-  .side-content .side-card {
-    flex: 1;
-  }
-  .footer-content {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .cart-container {
-    padding: 1rem;
-  }
-  .cart-item {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-  .cart-item-image {
-    width: 120px;
-    height: 120px;
-    margin: 0;
-  }
-  .order-info-grid {
-    grid-template-columns: 1fr;
-  }
 }
