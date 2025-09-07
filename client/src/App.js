@@ -153,7 +153,7 @@ function App() {
         })
         .catch(() => setAdminOrdersLoading(false));
     }
-  }, [page, admin.loggedIn, adminActionMsg]);
+  }, [page, admin.loggedIn, adminActionMsg, admin.token]);
 
   useEffect(() => {
     if (page === 'admin' && admin.loggedIn) {
@@ -172,7 +172,7 @@ function App() {
           setAdminOrdersLoading(false);
         });
     }
-  }, [page, admin.loggedIn, adminActionMsg]);
+  }, [page, admin.loggedIn, adminActionMsg, admin.token]);
 
   // Auto-refresh orders every 6s while on admin page
   useEffect(() => {
@@ -189,7 +189,7 @@ function App() {
       }, 6000);
       return () => clearInterval(interval);
     }
-  }, [page, admin.loggedIn]);
+  }, [page, admin.loggedIn, admin.token]);
 
   function addToCart(product) {
     setCart(prev => {
