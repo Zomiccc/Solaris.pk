@@ -46,12 +46,16 @@ function getSampleProducts() {
   ];
 }
 
+const API_BASE = process.env.NODE_ENV === 'production' 
+  ? 'https://your-render-app.onrender.com' 
+  : 'http://localhost:5000';
+
 function resolveProductImageSrc(image) {
   if (!image) return '';
   if (image.startsWith('http')) return image;
   if (image.startsWith('/')) return image; // public folder
   // default to backend uploads
-  return `http://localhost:5000/uploads/${image}`;
+  return API_BASE + '/uploads/' + image;
 }
 
 function safeFetchJson(url, options = {}) {
@@ -104,7 +108,7 @@ function App() {
   useEffect(() => {
     if (page === 'products' || page === 'admin') {
       setLoading(true);
-      fetch('http://localhost:5000/api/products')
+      fetch(API_BASE + '/api/products')
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
@@ -129,7 +133,7 @@ function App() {
   useEffect(() => {
     if (page === 'admin' && admin.loggedIn) {
       setAdminLoading(true);
-      fetch('http://localhost:5000/api/products')
+      fetch(API_BASE + '/api/products')
         .then(res => res.json())
         .then(data => {
           setAdminProducts(data);
@@ -143,7 +147,7 @@ function App() {
   useEffect(() => {
     if (page === 'admin' && admin.loggedIn) {
       setAdminOrdersLoading(true);
-      fetch('http://localhost:5000/api/admin/orders', {
+      fetch(API_BASE + '/api/admin/orders', {
         headers: { Authorization: 'Bearer ' + admin.token }
       })
         .then(res => res.json())
@@ -159,7 +163,7 @@ function App() {
     if (page === 'admin' && admin.loggedIn) {
       setAdminOrdersLoading(true);
       setAdminOrdersError('');
-      safeFetchJson('http://localhost:5000/api/admin/orders', {
+      safeFetchJson(API_BASE + '/api/admin/orders', {
         headers: { Authorization: 'Bearer ' + admin.token }
       })
         .then(data => {
@@ -178,7 +182,7 @@ function App() {
   useEffect(() => {
     if (page === 'admin' && admin.loggedIn) {
       const interval = setInterval(() => {
-        safeFetchJson('http://localhost:5000/api/admin/orders', {
+        safeFetchJson(API_BASE + '/api/admin/orders', {
           headers: { Authorization: 'Bearer ' + admin.token }
         })
           .then(data => {
@@ -358,7 +362,7 @@ function App() {
                     e.preventDefault();
                     setLastOrder(null);
                     try {
-                      const res = await fetch('http://localhost:5000/api/orders', {
+                      const res = await fetch(API_BASE + '/api/orders', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -499,7 +503,7 @@ function App() {
                 e.preventDefault();
                 setAdmin(a => ({...a, error: ''}));
                 try {
-                  const res = await fetch('http://localhost:5000/api/admin/login', {
+                  const res = await fetch(API_BASE + '/api/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(adminForm)
@@ -510,7 +514,7 @@ function App() {
                     // immediate orders fetch
                     setAdminOrdersLoading(true);
                     setAdminOrdersError('');
-                    safeFetchJson('http://localhost:5000/api/admin/orders', {
+                    safeFetchJson(API_BASE + '/api/admin/orders', {
                       headers: { Authorization: 'Bearer ' + data.token }
                     })
                       .then(d => {
@@ -573,7 +577,7 @@ function App() {
                   formData.append('stock', adminProductForm.stock);
                   if (adminProductForm.image) formData.append('image', adminProductForm.image);
                   try {
-                    const res = await fetch('http://localhost:5000/api/admin/products', {
+                    const res = await fetch(API_BASE + '/api/admin/products', {
                       method: 'POST',
                       headers: { Authorization: 'Bearer ' + admin.token },
                       body: formData
@@ -614,7 +618,7 @@ function App() {
                     {adminProducts.map(product => (
                       <div key={product.id} style={{border:'1px solid #eee',borderRadius:8,padding:16,width:220,background:'#fafafa',position:'relative'}}>
                         {product.image && (
-                          <img src={`http://localhost:5000/uploads/${product.image}`} alt={product.name} style={{width:'100%',height:120,objectFit:'cover',borderRadius:4}} />
+                          <img src={API_BASE + '/uploads/' + product.image} alt={product.name} style={{width:'100%',height:120,objectFit:'cover',borderRadius:4}} />
                         )}
                         <h4>{product.name}</h4>
                         <p>{product.description}</p>
@@ -622,7 +626,7 @@ function App() {
                         <button onClick={async () => {
                           setAdminActionMsg('');
                           try {
-                            const res = await fetch(`http://localhost:5000/api/admin/products/${product.id}`, {
+                            const res = await fetch(API_BASE + '/api/admin/products/' + product.id, {
                               method: 'DELETE',
                               headers: { Authorization: 'Bearer ' + admin.token }
                             });
@@ -661,7 +665,7 @@ function App() {
                       <button onClick={() => {
                         setAdminOrdersLoading(true);
                         setAdminOrdersError('');
-                        safeFetchJson('http://localhost:5000/api/admin/orders', {
+                        safeFetchJson(API_BASE + '/api/admin/orders', {
                           headers: { Authorization: 'Bearer ' + admin.token }
                         })
                           .then(data => {
