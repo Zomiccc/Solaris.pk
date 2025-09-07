@@ -14,11 +14,7 @@ const SECRET = "supersecretkey"; // ⚠️ Move to env var in production
 
 // --- Middleware ---
 app.use(cors({
-  origin: [
-    "https://solaris-pk-etn4.vercel.app",
-    "http://localhost:3000"
-  ],
-  credentials: true
+  origin: "*"
 }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
