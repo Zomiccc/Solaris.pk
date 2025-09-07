@@ -47,9 +47,9 @@ function getSampleProducts() {
 }
 
 const API_BASE = process.env.NODE_ENV === 'production' 
-  ? 'https://your-render-app.onrender.com' 
+  ? 'https://your-backend.vercel.app' // <-- REPLACE with your actual Vercel backend URL
   : 'http://localhost:5000';
-
+  
 function resolveProductImageSrc(image) {
   if (!image) return '';
   if (image.startsWith('http')) return image;
@@ -382,11 +382,14 @@ function App() {
                         });
                         setCart([]);
                         setCheckout({ name: '', address: '', phone: '' });
+                        setError(''); // clear error on success
                       } else {
                         setOrderStatus('failed');
+                        setError(data.error || 'Order failed');
                       }
-                    } catch {
+                    } catch (err) {
                       setOrderStatus('failed');
+                      setError(err.message || 'Order failed');
                     }
                   }} className="checkout-form">
                     <div className="form-group">
@@ -511,9 +514,9 @@ function App() {
                   const data = await res.json();
                   if (res.ok && data.token) {
                     setAdmin({ loggedIn: true, token: data.token, error: '' });
-                    // immediate orders fetch
                     setAdminOrdersLoading(true);
                     setAdminOrdersError('');
+                    setError(''); // clear error on success
                     safeFetchJson(API_BASE + '/api/admin/orders', {
                       headers: { Authorization: 'Bearer ' + data.token }
                     })
@@ -529,7 +532,7 @@ function App() {
                   } else {
                     setAdmin(a => ({...a, error: data.error || 'Login failed'}));
                   }
-                } catch {
+                } catch (err) {
                   setAdmin(a => ({...a, error: 'Login failed'}));
                 }
               }} style={{maxWidth:320,margin:'40px auto'}}>
