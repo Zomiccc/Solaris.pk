@@ -5,8 +5,13 @@
   "main": "server/index.js",
   "author": "Solaris",
   "license": "MIT",
-  "keywords": ["ecommerce", "accessories", "online-store", "react", "express"],
-
+  "keywords": [
+    "ecommerce",
+    "accessories",
+    "online-store",
+    "react",
+    "express"
+  ],
   "scripts": {
     "install": "npm install --prefix server && npm install --prefix client",
     "build": "npm run build --prefix client",
@@ -15,20 +20,18 @@
     "server": "cd server && node index.js",
     "client": "cd client && npm start"
   },
-
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "solaris-online-store": "file:..",
     "sqlite3": "^5.1.6"
   },
-
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-
   "engines": {
     "node": "20.x"
   }
