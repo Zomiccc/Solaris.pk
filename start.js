@@ -18,6 +18,22 @@ if (process.env.NPM_CONFIG_WORKSPACE || process.env.npm_config_argv) {
   }
 }
 
+const fs = require('fs');
+const path = require('path');
+
+// Build client at runtime if missing (Render ephemeral builds edge-case)
+try {
+  const buildIndex = path.resolve(__dirname, 'client', 'build', 'index.html');
+  if (!fs.existsSync(buildIndex)) {
+    console.log('client/build/index.html not found; running client build...');
+    require('child_process').execSync('npm --prefix client install && npm --prefix client run build', {
+      stdio: 'inherit'
+    });
+  }
+} catch (e) {
+  console.log('Runtime client build skipped/error:', e && e.message ? e.message : e);
+}
+
 require('./server/index.js');
 
 
