@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const fs = require("fs");
 
 // --- Config ---
 const app = express();
@@ -18,7 +19,14 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use(express.static(path.join(__dirname, "../client/build")));
+
+// --- Static frontend (CRA build) ---
+const clientBuildPath = path.resolve(__dirname, "../client/build");
+app.use(express.static(clientBuildPath));
+try {
+  const indexExists = fs.existsSync(path.join(clientBuildPath, "index.html"));
+  console.log("Frontend build path:", clientBuildPath, "index.html exists:", indexExists);
+} catch (_) {}
 
 // Logger (optional but useful)
 app.use((req, res, next) => {
@@ -188,7 +196,7 @@ app.get("/api/admin/orders", auth, (req, res) => {
 
 // --- Serve React frontend ---
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+  res.sendFile(path.join(clientBuildPath, "index.html"));
 });
 
 // --- Start Server ---
