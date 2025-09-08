@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: solaris-online-store
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build-client
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: SECRET
+        value: supersecretkey
+    healthCheckPath: /health
+
