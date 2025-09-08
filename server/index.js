@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 });
 
 // --- Database Setup ---
-const db = new sqlite3.Database("./store.db", (err) => {
+const db = new sqlite3.Database(path.join(__dirname, "store.db"), (err) => {
   if (err) return console.error("DB connection error:", err.message);
   console.log("Connected to SQLite database.");
 });
@@ -70,7 +70,7 @@ db.serialize(() => {
 
 // --- Multer Setup (for uploads) ---
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
+  destination: (req, file, cb) => cb(null, path.join(__dirname, "uploads")),
   filename: (req, file, cb) =>
     cb(null, Date.now() + path.extname(file.originalname)),
 });

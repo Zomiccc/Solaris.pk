@@ -46,8 +46,8 @@ function getSampleProducts() {
   ];
 }
 
-const API_BASE = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend.vercel.app' // <-- REPLACE with your actual Vercel backend URL
+const API_BASE = process.env.NODE_ENV === 'production'
+  ? (typeof window !== 'undefined' ? window.location.origin : '')
   : 'http://localhost:5000';
   
 function resolveProductImageSrc(image) {

@@ -1,6 +1,11 @@
 {
-  "buildCommand": "npm run build-client",
+  "installCommand": "npm --prefix client ci || npm --prefix client install",
+  "buildCommand": "npm --prefix client run build",
   "outputDirectory": "client/build",
-  "installCommand": "npm install"
+  "framework": "create-react-app",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD client/",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
 
